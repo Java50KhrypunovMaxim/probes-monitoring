@@ -18,7 +18,7 @@ import telran.probes.repository.SensorRangesRepository;
 import telran.probes.service.SensorRangeProviderService;
 
 
-@SpringBootTest(classes = { SensorRangesRepository.class, SensorRangeProviderService.class })
+@SpringBootTest()
 @AutoConfigureMockMvc
 
 class SensorRangeProviderTest {

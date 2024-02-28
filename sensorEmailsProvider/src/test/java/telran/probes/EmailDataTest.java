@@ -15,18 +15,19 @@ import telran.probes.model.SensorEmailsDoc;
 import telran.probes.repository.SensorEmailsRepo;
 import telran.probes.service.EmailProviderService;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class EmailDataTest {
 
-	@Autowired
-	MockMvc mockMvc;
+
+@SpringBootTest()
+@AutoConfigureMockMvc
+
+class EmailDataTest {
 	@Autowired
 	SensorEmailsRepo sensorEmailsRepo;
 	@Autowired
 	EmailProviderService emailProviderService;
-	
-	String url;
+	@Autowired
+	MockMvc mockMvc;
+
 	static final long SENSOR_ID = 123;
 
 	private static final String EMAIL1 = "service123@gmail";
@@ -41,6 +42,7 @@ class EmailDataTest {
 	@Test
 	void getSensorEmails ()
 	{
-		assertEquals(emailsExpected, emailProviderService.getSensorEmails(SENSOR_ID));
+		 String[] actualEmails = emailProviderService.getSensorEmails(SENSOR_ID);
+	        assertArrayEquals(emailsExpected, actualEmails);
 	}
 }

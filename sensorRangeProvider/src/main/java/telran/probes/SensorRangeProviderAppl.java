@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "telran")
-public class RensorRangeProviderAppl {
+public class SensorRangeProviderAppl {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RensorRangeProviderAppl.class, args);
+		SpringApplication.run(SensorRangeProviderAppl.class, args);
 
 	}
 
