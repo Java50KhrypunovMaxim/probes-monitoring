@@ -1,4 +1,4 @@
-package sensorEmailsProvider;
+package telran.probes;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,7 +38,7 @@ class EmailDataTest {
 	void setUp() {
 		sensorEmailsRepo.save(sensorEmailsDoc);
 	}
-	
+	@Test
 	void getSensorEmails ()
 	{
 		assertEquals(emailsExpected, emailProviderService.getSensorEmails(SENSOR_ID));
