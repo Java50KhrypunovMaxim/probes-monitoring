@@ -95,7 +95,7 @@
 
 	<modules>
 		<module>analyzer</module>
-		<module>sensorRangeProvider</module>
-		<module>sensorEmailsProvider</module>
+		<module>avg-populator</module>
+		<module>email-notifier</module>
 	</modules>
 </project>

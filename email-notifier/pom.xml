@@ -5,5 +5,5 @@
     <artifactId>probes-monitoring</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>analyzer</artifactId>
+  <artifactId>email-notifier</artifactId>
 </project>

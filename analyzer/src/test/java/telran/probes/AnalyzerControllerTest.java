@@ -47,19 +47,17 @@ RangeProviderClientService clientService;
 	void loadApplicationContext() {
 		assertNotNull(clientService);
 	}
-	
 	@BeforeEach
 	void setUp() {
 		when(clientService.getRange(SENSOR_ID)).thenReturn(RANGE);
+		
 	}
-	
 	@Test
 	void noDeviationTest() {
 		producer.send(new GenericMessage<ProbeData>(probeNormalData), consumerBindingName);
 		Message<byte[]> message = consumer.receive(10, producerBindingName);
 		assertNull(message);
 	}
-	
 	@Test
 	void greaterMaxDeviationTest() throws Exception {
 		producer.send(new GenericMessage<ProbeData>(probeGreaterMaxData), consumerBindingName);
@@ -67,9 +65,9 @@ RangeProviderClientService clientService;
 		assertNotNull(message);
 		DeviationData deviationData = mapper.readValue(message.getPayload(), DeviationData.class);
 		assertEquals(SENSOR_ID, deviationData.id());
-		assertEquals(DEVIATION_GREATER_MAX, deviationData.deviation());	
+		assertEquals(DEVIATION_GREATER_MAX, deviationData.deviation());
+		
 	}
-	
 	@Test
 	void lessMinDeviationTest() throws Exception {
 		producer.send(new GenericMessage<ProbeData>(probeLessMinData), consumerBindingName);
@@ -78,6 +76,7 @@ RangeProviderClientService clientService;
 		DeviationData deviationData = mapper.readValue(message.getPayload(), DeviationData.class);
 		assertEquals(SENSOR_ID, deviationData.id());
 		assertEquals(DEVIATION_LESS_MIN, deviationData.deviation());
+		
 	}
 	
 

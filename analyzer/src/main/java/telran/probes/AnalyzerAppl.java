@@ -6,18 +6,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import telran.probes.dto.DeviationData;
-import telran.probes.dto.ProbeData;
-import telran.probes.dto.Range;
+import telran.probes.dto.*;
+
 import telran.probes.service.RangeProviderClientService;
 
 @SpringBootApplication
 @RequiredArgsConstructor
-@ComponentScan(basePackages = "telran.probes.service")
 @Slf4j
 public class AnalyzerAppl {
 	String producerBindingName = "analyzerProducer-out-0";
@@ -25,26 +22,36 @@ public class AnalyzerAppl {
 	final StreamBridge streamBridge;
 	public static void main(String[] args) {
 		SpringApplication.run(AnalyzerAppl.class, args);
+
 	}
-	
 	@Bean
 	Consumer<ProbeData> analyzerConsumer() {
 		return probeData -> probeDataAnalyzing(probeData);
 	}
-	
-	
 	private void probeDataAnalyzing(ProbeData probeData) {
+		// in the case probeData value doesn't fall into a range received from RangeProviderClientService
+		// create a proper deviation and  streamBridge.send(producerBindingName, deviation);
 		log.trace("received probe: {}", probeData);
-		Range range = clientService.getRange(probeData.id());
-		double probeValue = probeData.value();
-		double minValue = range.minValue();
-		double maxValue = range.maxValue();
-
-		if (probeValue < minValue || probeValue > maxValue) {
-		    double deviationValue = probeValue < minValue ? probeValue - minValue : probeValue - maxValue;
-		    DeviationData deviation = new DeviationData(probeData.id(), deviationValue, probeValue, System.currentTimeMillis());
-		    streamBridge.send(producerBindingName, deviation);
-		    log.debug("deviation data {} sent to {}", deviation, producerBindingName);
+		long sensorId = probeData.id();
+		Range range = clientService.getRange(sensorId);
+		double value = probeData.value();
+		
+		double border = Double.NaN;
+		if (value < range.minValue()) {
+			border = range.minValue();
+		} else if(value > range.maxValue()) {
+			border = range.maxValue();
 		}
+		if (!Double.isNaN(border)) {
+			double deviation = value - border;
+			log.debug("deviation: {}", deviation);
+			DeviationData dataDeviation =
+					new DeviationData(sensorId, deviation, value, System.currentTimeMillis());
+			streamBridge.send(producerBindingName, dataDeviation);
+			log.debug("deviation data {} sent to {}", dataDeviation, producerBindingName);
+			
+		}
+		
+	}
 
-}}
+}
