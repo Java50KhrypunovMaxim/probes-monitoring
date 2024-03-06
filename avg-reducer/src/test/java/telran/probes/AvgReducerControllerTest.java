@@ -22,39 +22,30 @@ import telran.probes.service.AvgReducerService;
 @SpringBootTest
 @Import(TestChannelBinderConfiguration.class)
 class AvgReducerControllerTest {
-@Autowired
-	InputDestination producer;
-@Autowired
-OutputDestination consumer;
-@MockBean
-AvgReducerService avgReducerService; 
 
-@Value("${app.avg.binding.name}")
-String producerBindingName;
-String consumerBindingName = "probeConsumerAvg-in-0";
-static final double AVG_VALUE = 100l;
-static final long SENSOR_ID_AVG_VALUE = 124;
-static final ProbeData PROBE_DATA_NO_AVG_VALUE = new ProbeData(123, 100, 0);
-static final ProbeData PROBE_DATA_AVG_VALUE = new ProbeData(SENSOR_ID_AVG_VALUE, 110, 0);
-static final ProbeData PROBE_DATA_WITH_AVG_VALUE = new ProbeData(SENSOR_ID_AVG_VALUE, AVG_VALUE, 0);
- 
-@BeforeEach
-void setUp() {
-	when(avgReducerService.getAvgValue(PROBE_DATA_AVG_VALUE)).thenReturn(AVG_VALUE);
-	when(avgReducerService.getAvgValue(PROBE_DATA_NO_AVG_VALUE)).thenReturn(null);
-}
 
-	@Test
-	void testAvgValue() throws Exception{
-		producer.send(new GenericMessage<ProbeData>(PROBE_DATA_AVG_VALUE),
-				consumerBindingName);
-		Message<byte[]> message = consumer.receive(10, producerBindingName);
-		assertNotNull(message);
-		ObjectMapper mapper = new ObjectMapper();
-		ProbeData actual = mapper.readValue(message.getPayload(), ProbeData.class);
-		assertEquals(PROBE_DATA_WITH_AVG_VALUE, actual);
-		
-		
-	}
+    @Autowired
+    InputDestination dataProducer;
+    @Autowired
+    OutputDestination dataConsumer;
+    @MockBean
+    AvgReducerService avgReducerService;
 
+    String producerChannelName = "dataProducerChannel"; 
+    String consumerChannelName = "dataConsumerChannel";
+    static final double AVERAGE_SENSOR_VALUE = 2000;
+    static final long SENSOR_ID = 124;
+    static final ProbeData NO_AVERAGE_SENSOR_DATA = new ProbeData(100, 50, 0);
+    static final ProbeData AVERAGE_SENSOR_DATA = new ProbeData(SENSOR_ID, 110, 0);
+    static final ProbeData SENSOR_DATA_WITH_AVERAGE = new ProbeData(SENSOR_ID, AVERAGE_SENSOR_VALUE, 0);
+
+    @Test
+    	void testSensorAverage() throws Exception {
+            dataProducer.send(new GenericMessage<>(AVERAGE_SENSOR_DATA), producerChannelName);
+            Message<byte[]> message = dataConsumer.receive(10, producerChannelName);
+            assertNotNull(message);
+            ObjectMapper objectMapper = new ObjectMapper();
+            ProbeData actual = objectMapper.readValue(message.getPayload(), ProbeData.class);
+            assertEquals(SENSOR_DATA_WITH_AVERAGE, actual);
+        }
 }

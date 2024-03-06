@@ -21,7 +21,6 @@ import telran.probes.service.AvgReducerService;
 public class AvgReducerAppl {
 	final StreamBridge streamBridge;
 	final AvgReducerService avgReducerService;
-	@Value("${app.avg.binding.name}")
 	String bindingName;
 	
 	public static void main(String[] args) {
@@ -39,7 +38,7 @@ public class AvgReducerAppl {
 			log.debug("Sensor {}  average value is {}", sensorID, averageValue);
 			streamBridge.send(bindingName, new ProbeData(sensorID, averageValue,System.currentTimeMillis()));
 		} else {
-			log.trace("Sensor {} no average value ", sensorID );
+			log.debug("Sensor {} no average value ", sensorID );
 		}
 	}
 }
