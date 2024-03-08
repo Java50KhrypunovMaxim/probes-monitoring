@@ -19,26 +19,30 @@ import telran.probes.service.AvgReducerService;
 @RequiredArgsConstructor
 @Slf4j
 public class AvgReducerAppl {
-	final StreamBridge streamBridge;
-	final AvgReducerService avgReducerService;
-	String bindingName;
-	
+final AvgReducerService avgReducerService;
+final StreamBridge streamBridge;
+@Value("${app.avg.reducer.producer.binding.name}")
+private String producerBindingName;
 	public static void main(String[] args) {
 		SpringApplication.run(AvgReducerAppl.class, args);
+
 	}
-	@Bean 
-	Consumer<ProbeData> consumerAverageProbes() {
-		return this::processProbe;
+	@Bean
+	Consumer<ProbeData> avgReducerConsumer() {
+		return this::dataProcessing;
 	}
-	
-	void processProbe(ProbeData probe) {
-		Double averageValue = avgReducerService.getAvgValue(probe);
-		Long sensorID = probe.id();
-		if (averageValue != null) {
-			log.debug("Sensor {}  average value is {}", sensorID, averageValue);
-			streamBridge.send(bindingName, new ProbeData(sensorID, averageValue,System.currentTimeMillis()));
+	void dataProcessing(ProbeData probeData) {
+		log.trace("received {}", probeData);
+		Double avgValue = avgReducerService.getAvgValue(probeData);
+		long sensorId = probeData.id();
+		if (avgValue != null) {
+			ProbeData avgProbeData = new ProbeData(sensorId, avgValue, System.currentTimeMillis());
+			streamBridge.send(producerBindingName, avgProbeData);
+			log.debug("reduced probe data: {} has been sent to {} binding name",
+					avgProbeData, producerBindingName);
 		} else {
-			log.debug("Sensor {} no average value ", sensorID );
+			log.trace("no avg value for sensor {}", sensorId);
 		}
 	}
+
 }
